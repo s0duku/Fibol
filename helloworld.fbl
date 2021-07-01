@@ -1,0 +1,23 @@
+//randomly write some code for test ;)
+
+a = 1
+b = 10
+
+
+function HelloWorld(a,b){
+
+	if(a>b)
+		if( 10 > b){
+			c = a + b
+			a = c
+			return a
+		}
+	else
+		return 100
+
+}
+
+function ByeWorld(a,b){
+	return HelloWorld(a,b)
+}
+

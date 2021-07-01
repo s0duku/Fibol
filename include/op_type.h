@@ -1,0 +1,11 @@
+enum {
+    OP_TYPE_NONE = 0,
+    OP_TYPE_GREATER,
+    OP_TYPE_LESSER,
+    OP_TYPE_PLUS,
+    OP_TYPE_MINUS,
+    OP_TYPE_STAR,
+    OP_TYPE_DIV,
+    OP_TYPE_EQUAL,
+    OP_TYPE_NEQUAL
+};
