@@ -1,3 +1,4 @@
+
 @0 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
 @1 = private unnamed_addr constant [32 x i8] c"Hello World For Fibol Language!\00", align 1
 @2 = private unnamed_addr constant [18 x i8] c"magic number is: \00", align 1
@@ -5,12 +6,12 @@
 
 define void @main() {
 start:
-  %calltmp = call i64 @PrintOutLn(i8* getelementptr inbounds ([1 x i8], [1 x i8]* @0, i32 0, i32 0))
-  %calltmp1 = call i64 @PrintOutLn(i8* getelementptr inbounds ([32 x i8], [32 x i8]* @1, i32 0, i32 0))
-  %calltmp2 = call i64 @PrintOut(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @2, i32 0, i32 0))
+  %calltmp = call i64 @PrintOutLn(i64 ptrtoint ([1 x i8]* @0 to i64))
+  %calltmp1 = call i64 @PrintOutLn(i64 ptrtoint ([32 x i8]* @1 to i64))
+  %calltmp2 = call i64 @PrintOutLn(i64 ptrtoint ([18 x i8]* @2 to i64))
   %calltmp3 = call i64 @fibonacci(i64 100)
   %calltmp4 = call i64 @PrintOutI(i64 %calltmp3)
-  %calltmp5 = call i64 @PrintOutLn(i8* getelementptr inbounds ([1 x i8], [1 x i8]* @3, i32 0, i32 0))
+  %calltmp5 = call i64 @PrintOutLn(i64 ptrtoint ([1 x i8]* @3 to i64))
   ret void
 }
 
@@ -46,3 +47,4 @@ else:                                             ; preds = %entry
 
 ifcont:                                           ; No predecessors!
   ret i64 0
+}

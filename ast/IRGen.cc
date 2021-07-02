@@ -16,6 +16,7 @@
 //#include "llvm/Target/TargetMachine.h"
 #include "llvm/Support/TargetSelect.h"
 
+#include "passes/include/passes.h"
 #include "include/op_type.h"
 
 using namespace llvm;
@@ -96,6 +97,9 @@ void init_IR_module(char * md_name){
     InitializeNativeTargetAsmPrinter();
     InitializeNativeTargetAsmParser();
     TheFPM = new legacy::FunctionPassManager(&TheModule);
+#ifdef FIBOL_FLATTEN
+        TheFPM->add(new Flatten());
+#endif
     TheFPM->add(createAggressiveDCEPass());
     //TheFPM->add(createInstructionCombiningPass());
   // Reassociate expressions.
@@ -417,7 +421,11 @@ Value * FunctionCallAST::codegen(){
     }else if(var_type == VAR_TYPE_FUNCTION && f){
         
         for (unsigned i = 0;i < this->args->expressions.size(); ++i) {
-            ArgsV.push_back(this->args->expressions[i]->codegen());
+            auto arg = this->args->expressions[i]->codegen();
+            if(arg->getType()!=Type::getInt64Ty(TheContext)){
+                arg = Builder.CreatePtrToInt(arg,Type::getInt64Ty(TheContext));
+            }
+            ArgsV.push_back(arg);
             if (!ArgsV.back())
                 exit(0);
         }
@@ -431,7 +439,11 @@ Value * FunctionCallAST::codegen(){
     FunctionType *ft = FunctionType::get(Type::getInt64Ty(TheContext),Int64es,false);
     
     for (unsigned i = 0;i < this->args->expressions.size(); ++i) {
-            ArgsV.push_back(this->args->expressions[i]->codegen());
+            auto arg = this->args->expressions[i]->codegen();
+            if(arg->getType()!=Type::getInt64Ty(TheContext)){
+                arg = Builder.CreatePtrToInt(arg,Type::getInt64Ty(TheContext));
+            }
+            ArgsV.push_back(arg);
             if (!ArgsV.back())
                 exit(0);
     }        

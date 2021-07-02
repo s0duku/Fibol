@@ -34,13 +34,27 @@ cd Fibol
 
 ./build.sh
 
-```
+```  
+
+By default, flatten feature will be added, if you want to disable it, change the Makefile and delete the FIBOL_FLATTEN， 
+compile it again.  
 
 ## FEATURES  
 
 * Function as the first class data type  
 * Only two data type, Int64, Function  
 * Every Function returns a Int64  
+* Flatten the control flow   
+
+### Control Flow Flattening  
+
+* Normal Control Flow  
+
+
+
+* Fibol Control Flow Flattening  
+
+
 
 ### usage
 
