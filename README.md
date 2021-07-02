@@ -112,7 +112,7 @@ Symbol table '.symtab' contains 11 entries:
 ### output LLVM IR code
 
 ```
-./bin/fibol -c helloworld.fbl
+./bin/fibol helloworld.fbl
 ```
 
 ```
