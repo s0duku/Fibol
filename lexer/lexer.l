@@ -43,6 +43,8 @@ IF          if
 ELSE        else 
 RETURN      return 
 FUNCTION    function        
+
+STRING      \".*\"
     
 
 %%
@@ -86,6 +88,7 @@ FUNCTION    function
 {LESSER}        {lexer_total_char += yyleng;lexer_yychar += yyleng;return TOKENS_LESSER;}
 {DOT}           {lexer_total_char += yyleng;lexer_yychar += yyleng;return TOKENS_DOT;}
 {COMMA}         {lexer_total_char += yyleng;lexer_yychar += yyleng;return TOKENS_COMMA;}
+{STRING}        {lexer_total_char += yyleng;lexer_yychar += yyleng;return TOKENS_STRING;}
 {INT}           {lexer_total_char += yyleng;lexer_yychar += yyleng;return TOKENS_INT;}
 {REAL}          {lexer_total_char += yyleng;lexer_yychar += yyleng;return TOKENS_REAL;}
 

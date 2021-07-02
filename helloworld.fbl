@@ -1,34 +1,20 @@
 //randomly write some code for test ;)
 
-a = 10
 
-b = 2
-
-
-b = function HelloWorld(a,b){
-	if(a>b)
-		if( 10 > b){
-			c = a(10,12) + b
-			a = c
-			return a
-		}
+function fibonacci(n){
+	if(n > 1)
+		return	n + fibonacci(n-1)
 	else
-		return 100
-
+		return 1 
 }
 
-function ByeWorld(a,b){
-  a = HelloWorld
-  a = a(10,12)
-  return HelloWorld(a,b)
-}
 
-b(10,12)
+PrintOutLn("")
 
-HelloWorld(a+1,12)
+PrintOutLn("Hello World For Fibol Language!")
 
-b = ByeWorld
+PrintOutLn("magic number is: ")
 
-a = b 
+PrintOutI(fibonacci(100))
 
-a(b,10)
+PrintOutLn("")

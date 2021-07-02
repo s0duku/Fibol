@@ -4,9 +4,12 @@
 
 #include"llvm/IR/DerivedTypes.h"
 
+#include"std/include/DataType.h"
+
 enum{
         NumberAST_INT,
-        NumberAST_REAL
+        NumberAST_REAL,
+        NumberAST_STRING
  };
 
 enum PrimaryExpressionType{
@@ -208,8 +211,6 @@ class VariableAST:public ExpressionAST{
     llvm::Value *codegen() override;
 };
 
-#define NUMBER_INT long long
-#define NUMBER_REAL double
 
 class NumberAST:public ExpressionAST{
     public:
@@ -217,7 +218,9 @@ class NumberAST:public ExpressionAST{
     union {
         NUMBER_INT int_val;
         NUMBER_REAL real_val;
+        char * str_val;
     }val;
+    NumberAST(char *);
     NumberAST(NUMBER_INT);
     NumberAST(NUMBER_REAL);
     llvm::Value *codegen() override;

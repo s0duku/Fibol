@@ -111,12 +111,36 @@ void init_IR_module(char * md_name){
     FunctionType *ft = FunctionType::get(Type::getVoidTy(TheContext),Int64es,false);
     Function *f = Function::Create(ft,Function::ExternalLinkage,"main",&TheModule);
     
+    
 
-    if(!TheModule.getFunction("New")){
-        std::vector<Type *> Int64alloc(1,Type::getInt64Ty(TheContext));
-        FunctionType *alloc_args = FunctionType::get(Type::getInt64Ty(TheContext),Int64alloc,false);
-        Function *heap_alloc = Function::Create(alloc_args,Function::ExternalLinkage,"New",&TheModule);
-    }
+    Function::Create(FunctionType::get(Type::getInt64Ty(TheContext),std::vector<Type *>(1,Type::getInt64Ty(TheContext)),false),
+                        Function::ExternalLinkage,"New",&TheModule);
+    NamedValues.set("New",0,VAR_TYPE_FUNCTION);
+
+    Function::Create(FunctionType::get(Type::getInt64Ty(TheContext),std::vector<Type *>(1,Type::getInt64Ty(TheContext)),false),
+                        Function::ExternalLinkage,"Delete",&TheModule);
+    NamedValues.set("Delete",0,VAR_TYPE_FUNCTION);
+
+    Function::Create(FunctionType::get(Type::getInt64Ty(TheContext),std::vector<Type *>(1,Type::getInt64Ty(TheContext)),false),
+                        Function::ExternalLinkage,"PrintOutLn",&TheModule);
+    NamedValues.set("PrintOutLn",0,VAR_TYPE_FUNCTION);
+
+    Function::Create(FunctionType::get(Type::getInt64Ty(TheContext),std::vector<Type *>(1,Type::getInt64Ty(TheContext)),false),
+                        Function::ExternalLinkage,"PrintOut",&TheModule);
+    NamedValues.set("PrintOut",0,VAR_TYPE_FUNCTION);
+
+    Function::Create(FunctionType::get(Type::getInt64Ty(TheContext),std::vector<Type *>(1,Type::getInt64Ty(TheContext)),false),
+                        Function::ExternalLinkage,"PrintOutC",&TheModule);
+    NamedValues.set("PrintOutC",0,VAR_TYPE_FUNCTION);
+
+    Function::Create(FunctionType::get(Type::getInt64Ty(TheContext),std::vector<Type *>(1,Type::getInt64Ty(TheContext)),false),
+                        Function::ExternalLinkage,"PrintOutI",&TheModule);
+    NamedValues.set("PrintOutI",0,VAR_TYPE_FUNCTION);
+
+    Function::Create(FunctionType::get(Type::getInt64Ty(TheContext),std::vector<Type *>(0,Type::getInt64Ty(TheContext)),false),
+                        Function::ExternalLinkage,"Fibol",&TheModule);
+    NamedValues.set("Fibol",0,VAR_TYPE_FUNCTION);
+    
 
     BasicBlock * startBB = BasicBlock::Create(TheContext, "start",f);
     Builder.SetInsertPoint(startBB);
@@ -260,7 +284,6 @@ Value * FunctionExpressionAST::codegen(){
     NamedValues.set(this->id,0,VAR_TYPE_FUNCTION);
 
 
-
     unsigned Idx = 0;
 
     for (auto &Arg : f->args())
@@ -389,7 +412,6 @@ Value * FunctionCallAST::codegen(){
     int var_type = NamedValues.lookup_type(this->var->id);
     Function *f = TheModule.getFunction(this->var->id);
     Value *val = 0;
-
     if(!var_type){
         exit(0);
     }else if(var_type == VAR_TYPE_FUNCTION && f){
@@ -445,6 +467,8 @@ Value * NumberAST::codegen(){
         return ConstantInt::get(TheContext,APInt(64,this->val.int_val,true));
     }else if(this->type == NumberAST_REAL){
         return 0;
+    }else if(this->type == NumberAST_STRING){
+        return Builder.CreateGlobalStringPtr(StringRef(this->val.str_val));
     }
     return 0;
 }
@@ -453,7 +477,6 @@ Value * VariableAST::codegen(){
     AllocaInst *v = NamedValues.lookup(this->id);
     int v_type = NamedValues.lookup_type(this->id);
     if(!v_type){
-        puts(this->id.c_str());
         exit(0);
     }
     

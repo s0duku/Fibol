@@ -1,0 +1,15 @@
+
+
+flink() {
+    # Link Fibol and Standard Library
+    if command -v gcc >/dev/null 2>&1; then
+        gcc $*
+    else
+        if command -v clang >/dev/null 2>&1; then
+            clang $*
+        fi 
+    fi
+    cd `pwd`
+}
+
+flink $*

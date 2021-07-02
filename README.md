@@ -17,6 +17,7 @@ IRGenerator 80% (build with LLVM)
 JIT          0% (build with LLVM)  
 Passes       10% (build with LLVM)    
 Assembler    70% (build with LLVM)  
+Standard Library 10% (build with C/C++)  
   
 ## INSTALLION
 
@@ -40,9 +41,18 @@ cd Fibol
 ### usage
 
 ```
-/bin/fibol -c helloworld.fbl
+./bin/fibol -c helloworld.fbl
 
-gcc helloworld.fbl.o -o hellworld
+./bin/flink helloworld.fbl.o std/FibolStdio.o -o helloworld
+
+./hellworld
+
+```
+
+```
+Hello World For Fibol Language!
+magic number is:
+5050
 
 ```
 
@@ -53,110 +63,107 @@ gcc helloworld.fbl.o -o hellworld
 ```
 //randomly write some code for test ;)
 
-a = 1
-b = 10
 
-
-function HelloWorld(a,b){
-
-	if(a>b)
-		if( 10 > b){
-			c = a + b
-			a = c
-			return a
-		}
+function fibonacci(n){
+	if(n > 1)
+		return	n + fibonacci(n-1)
 	else
-		return 100
-
+		return 1 
 }
 
-function ByeWorld(a,b){
-  a = HelloWorld
-  a = a(10,12)
-	return HelloWorld(a,b)
-}
+
+PrintOutLn("")
+
+PrintOutLn("Hello World For Fibol Language!")
+
+PrintOutLn("magic number is: ")
+
+PrintOutI(fibonacci(100))
+
+PrintOutLn("")
 
 
 ```
 ###  generate object file
 
 ```
-/bin/fibol -c helloworld.fbl
+./bin/fibol -c helloworld.fbl
 ```
 
 ### object file
 
 ```
-[afl++]root@12ef6f0300b9:/mnt/Fibol# bin/fibol -c helloworld.fbl
-object file: helloworld.fbl.o
-[afl++]root@12ef6f0300b9:/mnt/Fibol# file helloworld.fbl.o
-helloworld.fbl.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripped
-[afl++]root@12ef6f0300b9:/mnt/Fibol# readelf -s helloworld.fbl.o
-
-Symbol table '.symtab' contains 6 entries:
+Symbol table '.symtab' contains 11 entries:
    Num:    Value          Size Type    Bind   Vis      Ndx Name
      0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT  UND
      1: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS
-     2: 0000000000000000     0 SECTION LOCAL  DEFAULT    2
-     3: 0000000000000050    24 FUNC    GLOBAL DEFAULT    2 ByeWorld
-     4: 0000000000000020    47 FUNC    GLOBAL DEFAULT    2 HelloWorld
-     5: 0000000000000000    19 FUNC    GLOBAL DEFAULT    2 main
+     2: 0000000000000000     1 OBJECT  LOCAL  DEFAULT    4 .L__unnamed_1
+     3: 0000000000000001    32 OBJECT  LOCAL  DEFAULT    4 .L__unnamed_2
+     4: 0000000000000021    18 OBJECT  LOCAL  DEFAULT    4 .L__unnamed_3
+     5: 0000000000000033     1 OBJECT  LOCAL  DEFAULT    4 .L__unnamed_4
+     6: 0000000000000000     0 SECTION LOCAL  DEFAULT    2
+     7: 0000000000000000     0 NOTYPE  GLOBAL DEFAULT  UND PrintOutI
+     8: 0000000000000000     0 NOTYPE  GLOBAL DEFAULT  UND PrintOutLn
+     9: 0000000000000050    44 FUNC    GLOBAL DEFAULT    2 fibonacci
+    10: 0000000000000000    69 FUNC    GLOBAL DEFAULT    2 main
      
 ```
 
 ### output LLVM IR code
 
 ```
+./bin/fibol -c helloworld.fbl
+```
+
+```
+@0 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
+@1 = private unnamed_addr constant [32 x i8] c"Hello World For Fibol Language!\00", align 1
+@2 = private unnamed_addr constant [18 x i8] c"magic number is: \00", align 1
+@3 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
+
 define void @main() {
 start:
-  %b = alloca i64, align 8
-  %a = alloca i64, align 8
-  store i64 1, i64* %a, align 4
-  store i64 10, i64* %b, align 4
+  %calltmp = call i64 @PrintOutLn(i8* getelementptr inbounds ([1 x i8], [1 x i8]* @0, i32 0, i32 0))
+  %calltmp1 = call i64 @PrintOutLn(i8* getelementptr inbounds ([32 x i8], [32 x i8]* @1, i32 0, i32 0))
+  %calltmp2 = call i64 @PrintOutLn(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @2, i32 0, i32 0))
+  %calltmp3 = call i64 @fibonacci(i64 100)
+  %calltmp4 = call i64 @PrintOutI(i64 %calltmp3)
+  %calltmp5 = call i64 @PrintOutLn(i8* getelementptr inbounds ([1 x i8], [1 x i8]* @3, i32 0, i32 0))
   ret void
 }
 
-define i64 @HelloWorld(i64 %a, i64 %b) {
+declare i64 @New(i64)
+
+declare i64 @Delete(i64)
+
+declare i64 @PrintOutLn(i64)
+
+declare i64 @PrintOut(i64)
+
+declare i64 @PrintOutC(i64)
+
+declare i64 @PrintOutI(i64)
+
+declare i64 @Fibol()
+
+define i64 @fibonacci(i64 %n) {
 entry:
-  %c = alloca i64, align 8
-  %b2 = alloca i64, align 8
-  %a1 = alloca i64, align 8
-  store i64 %a, i64* %a1, align 4
-  store i64 %b, i64* %b2, align 4
-  %greater = icmp ugt i64 %a, %b
-  br i1 %greater, label %then, label %else12
+  %n1 = alloca i64, align 8
+  store i64 %n, i64* %n1, align 4
+  %greater = icmp ugt i64 %n, 1
+  br i1 %greater, label %then, label %else
 
 then:                                             ; preds = %entry
-  %greater6 = icmp ugt i64 10, %b
-  br i1 %greater6, label %then7, label %else
-
-then7:                                            ; preds = %then
-  %addtmp = add i64 %a, %b
-  store i64 %addtmp, i64* %c, align 4
-  store i64 %addtmp, i64* %a1, align 4
+  %subtmp = sub i64 %n, 1
+  %calltmp = call i64 @fibonacci(i64 %subtmp)
+  %addtmp = add i64 %n, %calltmp
   ret i64 %addtmp
 
-else:                                             ; preds = %then
-  ret i64 100
+else:                                             ; preds = %entry
+  ret i64 1
 
 ifcont:                                           ; No predecessors!
-  br label %ifcont13
-
-else12:                                           ; preds = %entry
-  br label %ifcont13
-
-ifcont13:                                         ; preds = %else12, %ifcont
   ret i64 0
-}
-
-define i64 @ByeWorld(i64 %a, i64 %b) {
-entry:
-  %b2 = alloca i64, align 8
-  %a1 = alloca i64, align 8
-  store i64 %a, i64* %a1, align 4
-  store i64 %b, i64* %b2, align 4
-  %calltmp = call i64 @HelloWorld(i64 %a, i64 %b)
-  ret i64 %calltmp
 }
 
 ```  

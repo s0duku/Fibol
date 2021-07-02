@@ -76,7 +76,8 @@ extern int yydebug;
     TOKENS_DOT = 281,
     TOKENS_COMMA = 282,
     TOKENS_FUNCTION = 283,
-    TOKENS_ERROR = 284
+    TOKENS_STRING = 284,
+    TOKENS_ERROR = 285
   };
 #endif
 
@@ -84,13 +85,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 50 "parser/parser.y"
+#line 51 "parser/parser.y"
 
   BaseAST * ast;
   int op;
   std::string* id_sym;
 
-#line 94 "include/tokens.h"
+#line 95 "include/tokens.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

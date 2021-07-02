@@ -44,6 +44,7 @@ std::vector<std::string> tmp_syms;
     TOKENS_DOT
     TOKENS_COMMA
     TOKENS_FUNCTION
+    TOKENS_STRING
     TOKENS_ERROR
 
 
@@ -116,7 +117,7 @@ expression:             assign_expression {$$ = new ExpressionAST((AssignExpress
 function_expression:    TOKENS_FUNCTION TOKENS_ID {tmp_syms.push_back(std::string(lexer_text(),lexer_text()+strlen(lexer_text())));} TOKENS_LBRACKET parameters TOKENS_RBRACKET compound_statement {$$ = new FunctionExpressionAST(tmp_syms[tmp_syms.size()-1],(ParametersAST *)$5,(CompoundStatementAST *)$7);tmp_syms.pop_back();}
 
 parameters:             {param_ids.push_back(std::vector<std::string>());} parameter_list {$$ = new ParametersAST(); ((ParametersAST *)($$))->ids = param_ids[param_ids.size()-1]; param_ids.pop_back();}
-                    |   %empty {$$ = new ParametersAST(); param_ids.pop_back();}
+                    |   %empty {$$ = new ParametersAST();}
 
 parameter_list:         parameter_list TOKENS_COMMA parameter {param_ids[param_ids.size()-1].push_back(*$3);}
                     |   parameter {param_ids[param_ids.size()-1].push_back(*$1);}
@@ -155,10 +156,11 @@ primary_expression:     variable    {$$ = new PrimaryExpressionAST((VariableAST*
 
 number:                 TOKENS_INT  {$$ = new NumberAST(atoll(lexer_text()));}
                     |   TOKENS_REAL {$$ = new NumberAST(atof(lexer_text()));}
+                    |   TOKENS_STRING {$$ = new NumberAST(lexer_text());}
 
 function_call:          variable TOKENS_LBRACKET arguments TOKENS_RBRACKET {$$ = new FunctionCallAST((VariableAST*)$1,(ArgumentsAST*)$3);}
 arguments:              {args_exps.push_back(std::vector<ExpressionAST *>());} argument-list {$$ = new ArgumentsAST(); ((ArgumentsAST*)($$))->expressions = args_exps[args_exps.size()-1]; args_exps.pop_back();}
-                    |   %empty {$$ = new ArgumentsAST();args_exps.pop_back();}
+                    |   %empty {$$ = new ArgumentsAST();}
 
 argument-list:          argument-list TOKENS_COMMA expression {args_exps[args_exps.size()-1].push_back((ExpressionAST *)($3));}
                     |   expression {args_exps[args_exps.size()-1].push_back((ExpressionAST *)($1));}

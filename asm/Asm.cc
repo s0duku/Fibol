@@ -46,7 +46,7 @@ int init_ASM_module(Module * md){
     TargetOptions opt;
     auto RM = Optional<Reloc::Model>();
 
-    TarMach = Tar->createTargetMachine(targetTriple, CPU, Features, opt, RM);
+    TarMach = Tar->createTargetMachine(targetTriple, CPU, Features, opt, Reloc::PIC_);
 
      
 

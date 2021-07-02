@@ -78,6 +78,12 @@ void VariableAST::append(std::string id){
     this->id_list.push_back(id);
 }
 
+NumberAST::NumberAST(char * val){
+    this->type = NumberAST_STRING;
+    this->val.str_val = (char *) calloc(strlen(val)-1,sizeof(char));
+    memcpy(this->val.str_val,val+1,(strlen(val)-2)*sizeof(char));
+}
+
 NumberAST::NumberAST(NUMBER_INT val){
     this->type = NumberAST_INT;
     this->val.int_val = val;

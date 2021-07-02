@@ -1,62 +1,48 @@
+@0 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
+@1 = private unnamed_addr constant [32 x i8] c"Hello World For Fibol Language!\00", align 1
+@2 = private unnamed_addr constant [18 x i8] c"magic number is: \00", align 1
+@3 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
 
 define void @main() {
 start:
-  %calltmp = call i64 @HelloWorld(i64 1, i64 2)
+  %calltmp = call i64 @PrintOutLn(i8* getelementptr inbounds ([1 x i8], [1 x i8]* @0, i32 0, i32 0))
+  %calltmp1 = call i64 @PrintOutLn(i8* getelementptr inbounds ([32 x i8], [32 x i8]* @1, i32 0, i32 0))
+  %calltmp2 = call i64 @PrintOut(i8* getelementptr inbounds ([18 x i8], [18 x i8]* @2, i32 0, i32 0))
+  %calltmp3 = call i64 @fibonacci(i64 100)
+  %calltmp4 = call i64 @PrintOutI(i64 %calltmp3)
+  %calltmp5 = call i64 @PrintOutLn(i8* getelementptr inbounds ([1 x i8], [1 x i8]* @3, i32 0, i32 0))
   ret void
 }
 
-define i64 @HelloWorld(i64 %a, i64 %b) {
+declare i64 @New(i64)
+
+declare i64 @Delete(i64)
+
+declare i64 @PrintOutLn(i64)
+
+declare i64 @PrintOut(i64)
+
+declare i64 @PrintOutC(i64)
+
+declare i64 @PrintOutI(i64)
+
+declare i64 @Fibol()
+
+define i64 @fibonacci(i64 %n) {
 entry:
-  %c = alloca i64, align 8
-  %b2 = alloca i64, align 8
-  %a1 = alloca i64, align 8
-  store i64 %a, i64* %a1, align 4
-  store i64 %b, i64* %b2, align 4
-  %a3 = load i64, i64* %a1, align 4
-  %b4 = load i64, i64* %b2, align 4
-  %greater = icmp ugt i64 %a3, %b4
-  br i1 %greater, label %then, label %else13
+  %n1 = alloca i64, align 8
+  store i64 %n, i64* %n1, align 4
+  %greater = icmp ugt i64 %n, 1
+  br i1 %greater, label %then, label %else
 
 then:                                             ; preds = %entry
-  %a5 = load i64, i64* %a1, align 4
-  %b6 = load i64, i64* %b2, align 4
-  %greater7 = icmp ugt i64 %a5, %b6
-  br i1 %greater7, label %then8, label %else
+  %subtmp = sub i64 %n, 1
+  %calltmp = call i64 @fibonacci(i64 %subtmp)
+  %addtmp = add i64 %n, %calltmp
+  ret i64 %addtmp
 
-then8:                                            ; preds = %then
-  %a9 = load i64, i64* %a1, align 4
-  %b10 = load i64, i64* %b2, align 4
-  %addtmp = add i64 %a9, %b10
-  store i64 %addtmp, i64* %c, align 4
-  %c11 = load i64, i64* %c, align 4
-  store i64 %c11, i64* %a1, align 4
-  %a12 = load i64, i64* %a1, align 4
-  ret i64 %a12
-  br label %ifcont
+else:                                             ; preds = %entry
+  ret i64 1
 
-else:                                             ; preds = %then
-  ret i64 10
-  br label %ifcont
-
-ifcont:                                           ; preds = %else, %then8
-  br label %ifcont14
-
-else13:                                           ; preds = %entry
-  br label %ifcont14
-
-ifcont14:                                         ; preds = %else13, %ifcont
+ifcont:                                           ; No predecessors!
   ret i64 0
-}
-
-define i64 @ByeWorld(i64 %a, i64 %b) {
-entry:
-  %b2 = alloca i64, align 8
-  %a1 = alloca i64, align 8
-  store i64 %a, i64* %a1, align 4
-  store i64 %b, i64* %b2, align 4
-  %a3 = load i64, i64* %a1, align 4
-  %b4 = load i64, i64* %b2, align 4
-  %multmp = mul i64 %a3, %b4
-  ret i64 %multmp
-  ret i64 0
-}
