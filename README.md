@@ -50,11 +50,11 @@ compile it again.
 
 * Normal Control Flow  
 
-
+![normal](https://gitee.com/s0duku/Fibol/raw/master/examples/normal.png "在这里输入图片标题")
 
 * Fibol Control Flow Flattening  
 
-
+![flatten](https://gitee.com/s0duku/Fibol/raw/master/examples/flatten.png "在这里输入图片标题")
 
 ### usage
 
