@@ -48,11 +48,13 @@ INCLUDE_PATH = `pwd`
 $(TOOL) : $(ASM_OBJECT) $(PASS_HELLO_SO) $(TOOL_OBJECT) $(LEXER_OBJECT) $(LOG_OBJECT) $(PARSER_OBJECT) $(EXP_AST_OBJECT) $(STMT_AST_OBJECT) $(IR_OBJECT) testlexer
 	$(CC) $(LLVM_CXXFLAGS) $(LLVM_LIBS) $(LLVM_LDFLAGS) $(ASM_OBJECT) $(TOOL_OBJECT) $(IR_OBJECT) $(LEXER_OBJECT) $(LOG_OBJECT) $(PARSER_OBJECT) $(EXP_AST_OBJECT) $(STMT_AST_OBJECT) -o $(TOOL) -lm
 
+
 testlexer.o: testlexer.cc
 	$(CC) -c testlexer.cc -o objects/testlexer.o -I $(INCLUDE_PATH)
 
 testlexer : testlexer.o $(LEXER_OBJECT) $(LOG_OBJECT)
 	$(CC) $(LLVM_CXXFLAGS) $(LLVM_LIBS) $(LLVM_LDFLAGS) objects/testlexer.o $(LEXER_OBJECT) $(LOG_OBJECT) -o bin/testlexer -lm -I $(INCLUDE_PATH)
+
 
 $(ASM_OBJECT) : $(ASM_SRC)
 	$(CC) -c $(ASM_SRC) -o $(ASM_OBJECT) -I $(INCLUDE_PATH)
@@ -90,8 +92,8 @@ $(TOOL_OBJECT) : $(TOOL_SRC) $(PARSER_SRC)
 	$(CC) -c $(TOOL_SRC) -o $(TOOL_OBJECT) -I $(INCLUDE_PATH)
 
 clean :
-	clear
 	rm -rf $(PARSER_SRC) $(PARSER_OBJECT) bin/testlexer objects/testlexer.o
 	rm -rf $(LEXER_SRC) $(TOOL_OBJECT) $(LOG_OBJECT) $(EXP_AST_OBJECT)
 	rm -rf $(LEXER_SRC) $(LEXER_OBJECT) $(TOOL) $(STMT_AST_OBJECT)
 	rm -rf $(IR_OBJECT) $(PASS_HELLO_SO) $(ASM_OBJECT)
+

@@ -26,6 +26,7 @@ static LLVMContext TheContext;
 static Module TheModule(module_name,TheContext);
 static legacy::FunctionPassManager *TheFPM;
 static IRBuilder<> Builder(TheContext);
+static int exp_ret_type = VAR_TYPE_NONE;
 
 Module * get_IR_module(){
     return &TheModule;
@@ -39,33 +40,49 @@ AllocaInst *create_block_entry_alloca(Function*f,std::string name){
 class NameEnv{
     public:
         std::vector<std::map<std::string, AllocaInst *>> envs;
+        std::vector<std::map<std::string,int>> types;
 
         NameEnv(){
             this->envs.push_back(std::map<std::string, AllocaInst *>());
+            this->types.push_back(std::map<std::string, int>());
         }
 
         AllocaInst * lookup(std::string sym){
             AllocaInst * v = 0;
             int idx = this->envs.size();
             for(int i = idx-1;i >= 0;i--){
-                v = this->envs[i][sym];
-                if(v)
-                    return v;
+                if (this->envs[i].count(sym) == 1){
+                    return this->envs[i][sym];
+                }
             }
             return v;
         }
 
-        void set(std::string sym,AllocaInst * v){
-            this->envs[this->envs.size()-1][sym] = v; 
+        int lookup_type(std::string sym){
+            int v = 0;
+            int idx = this->types.size();
+            for(int i = idx-1;i >= 0;i--){
+                if (this->types[i].count(sym) == 1){
+                    return this->types[i][sym];
+                }
+            }
+            return 0;
         }
 
-        void append(std::map<std::string, AllocaInst *> val_map){
+        void set(std::string sym,AllocaInst * v,int tp){
+            this->envs[this->envs.size()-1][sym] = v; 
+            this->types[this->types.size()-1][sym] = tp;
+        }
+
+        void append(std::map<std::string, AllocaInst *> val_map,std::map<std::string, int>tp_map){
             this->envs.push_back(val_map);
+            this->types.push_back(tp_map);
         }
 
         std::map<std::string, AllocaInst *> pop(){
             std::map<std::string, AllocaInst *> m = this->envs[this->envs.size()-1];
             this->envs.pop_back();
+            this->types.pop_back();
             return m;
         }
 };
@@ -93,6 +110,13 @@ void init_IR_module(char * md_name){
     std::vector<Type *> Int64es(0,Type::getVoidTy(TheContext));
     FunctionType *ft = FunctionType::get(Type::getVoidTy(TheContext),Int64es,false);
     Function *f = Function::Create(ft,Function::ExternalLinkage,"main",&TheModule);
+    
+
+    if(!TheModule.getFunction("New")){
+        std::vector<Type *> Int64alloc(1,Type::getInt64Ty(TheContext));
+        FunctionType *alloc_args = FunctionType::get(Type::getInt64Ty(TheContext),Int64alloc,false);
+        Function *heap_alloc = Function::Create(alloc_args,Function::ExternalLinkage,"New",&TheModule);
+    }
 
     BasicBlock * startBB = BasicBlock::Create(TheContext, "start",f);
     Builder.SetInsertPoint(startBB);
@@ -213,9 +237,12 @@ Value * ExpressionAST::codegen(){
         case ExpressionAST_ASSIGN:
             return this->val.assign_exp->codegen();
         case ExpressionAST_CONDITIONAL:
+            exp_ret_type = VAR_TYPE_INT;
             return this->val.conditional_exp->codegen();
         case ExpressionAST_FUNCTION:
+            exp_ret_type = VAR_TYPE_FUNCTION;
             return this->val.function_exp->codegen();
+            
         default:
             
             exit(0);
@@ -230,6 +257,8 @@ Value * FunctionExpressionAST::codegen(){
 
     Function *f = Function::Create(ft,Function::ExternalLinkage,this->id,&TheModule);
 
+    NamedValues.set(this->id,0,VAR_TYPE_FUNCTION);
+
 
 
     unsigned Idx = 0;
@@ -241,12 +270,12 @@ Value * FunctionExpressionAST::codegen(){
     BasicBlock *BB = BasicBlock::Create(TheContext, "entry", f);
     Builder.SetInsertPoint(BB);
 
-    NamedValues.append(std::map<std::string, AllocaInst *>());
+    NamedValues.append(std::map<std::string, AllocaInst *>(),std::map<std::string,int>());
    
     for (auto &Arg : f->args()){
         AllocaInst *Alloca = create_block_entry_alloca(f, std::string(Arg.getName()));
         Builder.CreateStore(&Arg, Alloca);
-        NamedValues.set(std::string(Arg.getName()),Alloca);
+        NamedValues.set(std::string(Arg.getName()),Alloca,VAR_TYPE_INT);
     }
 
     Value * ret = this->compound->codegen();
@@ -273,12 +302,13 @@ Value * AssignExpressionAST::codegen(){
     AllocaInst * alloc = 0;
     if(NamedValues.lookup(this->var->id) == 0){
          alloc = create_block_entry_alloca(Builder.GetInsertBlock()->getParent(),this->var->id);
-         NamedValues.set(this->var->id,alloc);
+         NamedValues.set(this->var->id,alloc,VAR_TYPE_NONE);
     }
 
     alloc = NamedValues.lookup(this->var->id);
 
     Value * val = this->exp->codegen();
+    NamedValues.set(this->var->id,alloc,exp_ret_type);
     Builder.CreateStore(val,alloc);
 
     return val;
@@ -354,24 +384,40 @@ Value * MultiplicativeExpressionAST::codegen(){
 }
 
 Value * FunctionCallAST::codegen(){
-    Function *f = TheModule.getFunction(this->var->id);
-    
-    if(!f){
-        exit(0);
-    }
-    
-    if(f->arg_size()!=this->args->expressions.size()){
-        exit(0);
-    }
-
     std::vector<Value *> ArgsV;
-    for (unsigned i = 0;i < this->args->expressions.size(); ++i) {
-        ArgsV.push_back(this->args->expressions[i]->codegen());
-        if (!ArgsV.back())
-            exit(0);
-    }
+    AllocaInst *v = NamedValues.lookup(this->var->id);
+    int var_type = NamedValues.lookup_type(this->var->id);
+    Function *f = TheModule.getFunction(this->var->id);
+    Value *val = 0;
 
-    return Builder.CreateCall(f, ArgsV, "calltmp");
+    if(!var_type){
+        exit(0);
+    }else if(var_type == VAR_TYPE_FUNCTION && f){
+        
+        for (unsigned i = 0;i < this->args->expressions.size(); ++i) {
+            ArgsV.push_back(this->args->expressions[i]->codegen());
+            if (!ArgsV.back())
+                exit(0);
+        }
+        if(f->arg_size()!=this->args->expressions.size()){
+            exit(0);
+        }
+        return Builder.CreateCall(f, ArgsV, "calltmp");
+    }
+    
+    std::vector<Type *> Int64es(this->args->expressions.size(),Type::getInt64Ty(TheContext));
+    FunctionType *ft = FunctionType::get(Type::getInt64Ty(TheContext),Int64es,false);
+    
+    for (unsigned i = 0;i < this->args->expressions.size(); ++i) {
+            ArgsV.push_back(this->args->expressions[i]->codegen());
+            if (!ArgsV.back())
+                exit(0);
+    }        
+    
+    val = Builder.CreateLoad(v,this->var->id.c_str());
+    val = Builder.CreateIntToPtr(val,ft->getPointerTo());
+
+    return Builder.CreateCall(FunctionCallee(ft,val), ArgsV, "calltmp");
 }
 
 Value * PrimaryExpressionAST::codegen(){
@@ -405,9 +451,18 @@ Value * NumberAST::codegen(){
 
 Value * VariableAST::codegen(){
     AllocaInst *v = NamedValues.lookup(this->id);
-    if(!v){
-        
+    int v_type = NamedValues.lookup_type(this->id);
+    if(!v_type){
+        puts(this->id.c_str());
         exit(0);
+    }
+    
+    if(v_type == VAR_TYPE_FUNCTION){
+        if(v){
+            return Builder.CreateLoad(v, this->id.c_str());
+        }else{
+            return TheModule.getFunction(this->id);
+        }
     }
     return Builder.CreateLoad(v, this->id.c_str());
 }

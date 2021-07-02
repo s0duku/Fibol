@@ -27,7 +27,22 @@ git clone https://gitee.com/s0duku/Fibol.git
 
 cd Fibol  
 
-make
+./build.sh
+
+```
+
+## FEATURES  
+
+* Function as the first class data type  
+* Only two data type, Int64, Function  
+* Every Function returns a Int64  
+
+### usage
+
+```
+/bin/fibol -c helloworld.fbl
+
+gcc helloworld.fbl.o -o hellworld
 
 ```
 
@@ -56,6 +71,8 @@ function HelloWorld(a,b){
 }
 
 function ByeWorld(a,b){
+  a = HelloWorld
+  a = a(10,12)
 	return HelloWorld(a,b)
 }
 

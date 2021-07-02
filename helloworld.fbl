@@ -1,14 +1,14 @@
 //randomly write some code for test ;)
 
-a = 1
-b = 10
+a = 10
+
+b = 2
 
 
-function HelloWorld(a,b){
-
+b = function HelloWorld(a,b){
 	if(a>b)
 		if( 10 > b){
-			c = a + b
+			c = a(10,12) + b
 			a = c
 			return a
 		}
@@ -18,6 +18,17 @@ function HelloWorld(a,b){
 }
 
 function ByeWorld(a,b){
-	return HelloWorld(a,b)
+  a = HelloWorld
+  a = a(10,12)
+  return HelloWorld(a,b)
 }
 
+b(10,12)
+
+HelloWorld(a+1,12)
+
+b = ByeWorld
+
+a = b 
+
+a(b,10)

@@ -9,3 +9,10 @@ enum {
     OP_TYPE_EQUAL,
     OP_TYPE_NEQUAL
 };
+
+enum{
+    VAR_TYPE_NONE = 1,
+    VAR_TYPE_INT,
+    VAR_TYPE_FUNCTION,
+    VAR_TYPE_POINTER
+};
