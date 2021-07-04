@@ -8,6 +8,7 @@ Design a simple Language just for learning these tools ;)
 [Bison DOCS http://dinosaur.compilertools.net/bison/index.html](http://dinosaur.compilertools.net/bison/index.html)   
 [Flex DOCS http://dinosaur.compilertools.net/flex/index.html](http://dinosaur.compilertools.net/flex/index.html)  
 
+![help](https://gitee.com/s0duku/Fibol/raw/master/examples/help.png "在这里输入图片标题")  
 
 ![helloworld_example](https://gitee.com/s0duku/Fibol/raw/master/examples/run_example.png "在这里输入图片标题")
 
