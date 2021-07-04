@@ -3,7 +3,7 @@
 #include"include/lexer.h"
 #include"include/utils.h"
 
-
+void welcome();
 
 int main(int argc, char** argv) {
     ProgramAST * ast = 0;
@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
     if(argc > 1){
         init_IR_module(argv[1]);
     }else{
-        puts("fatal error: no input file");
+        welcome();
     }
 
     if (argc == 2) {
@@ -57,4 +57,20 @@ int main(int argc, char** argv) {
     }
 
     return 0;
+}
+
+void welcome(){
+    puts("\n\033[1mFibol\033[0m A Simple Language Build With Flex/Bison/LLVM\n");
+    puts("  Copyright (C) Created by s0duku on 2021/7/4");
+    puts("  Source https://gitee.com/s0duku/Fibol");
+    puts("  Gitee upload on Saturday July 4, 2021");
+
+    puts("\n\033[31mUsage\033[0m: ./fibol [\033[1mOPTION\033[0m] [\033[1mINPUT_FILE\033[0m]\n");
+
+    puts("\033[1mOPTION:\033[0m\n");
+
+    puts("  -c\tgenerate object file.");
+
+    puts("");
+
 }
